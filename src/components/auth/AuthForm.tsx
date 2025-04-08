@@ -14,16 +14,12 @@ export default function AuthForm() {
 
     const setupRecaptcha = () => {
         if (!(window as any).recaptchaVerifier) {
-            (window as any).recaptchaVerifier = new RecaptchaVerifier(
-                "recaptcha-container",
-                {
-                    size: "normal",
-                    callback: () => {
-                        // reCAPTCHA solved
-                    },
+            (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+                size: "normal",
+                callback: () => {
+                    // reCAPTCHA solved
                 },
-                auth
-            );
+            });
         }
     };
 

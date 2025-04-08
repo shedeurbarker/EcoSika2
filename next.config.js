@@ -32,6 +32,7 @@ const nextConfig = {
             "replicate.com",
             "replicate.delivery",
         ],
+        unoptimized: true,
     },
     // Enable static exports for Firebase hosting
     output: "export",

@@ -58,13 +58,17 @@ export default function ScanPage() {
 
     useEffect(() => {
         if (typeof window !== "undefined" && user) {
-            const scanner = new Html5QrcodeScanner("reader", {
-                qrbox: {
-                    width: 250,
-                    height: 250,
+            const scanner = new Html5QrcodeScanner(
+                "reader",
+                {
+                    qrbox: {
+                        width: 250,
+                        height: 250,
+                    },
+                    fps: 5,
                 },
-                fps: 5,
-            });
+                false
+            );
 
             scanner.render((decodedText: string) => onScanSuccess(decodedText), onScanError);
 
