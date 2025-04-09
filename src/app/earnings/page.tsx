@@ -290,7 +290,7 @@ export default function EarningsPage() {
                                 id="amount"
                                 value={withdrawalAmount}
                                 onChange={(e) => setWithdrawalAmount(e.target.value)}
-                                className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                                className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
                                 required
                                 min="1"
                                 max={recycler?.walletBalance || 0}

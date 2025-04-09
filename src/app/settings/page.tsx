@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { useRecycler } from "@/lib/hooks/useRecycler";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/firebase";
+import momo from "@/app/images/momo.jpg";
 import Image from "next/image";
 
 export default function SettingsPage() {
@@ -56,10 +57,6 @@ export default function SettingsPage() {
         }
     };
 
-    // if (loading) {
-    //     return <div className="p-6">Loading...</div>;
-    // }
-
     if (!user) {
         return <div className="p-6">Please sign in to access settings.</div>;
     }
@@ -78,20 +75,20 @@ export default function SettingsPage() {
                         >
                             Mobile Money Provider
                         </label>
+
                         <div className="mt-2 mb-4">
                             <Image
-                                src="/images/mobile-money-providers.png"
+                                src={momo}
                                 alt="Mobile Money Providers: MTN Mobile Money, AirtelTigo Money, Vodafone Cash"
-                                width={600}
-                                height={200}
-                                className="rounded-lg"
+                                width={80}
+                                className="rounded-sm"
                             />
                         </div>
                         <select
                             id="mobileProvider"
                             value={mobileProvider}
                             onChange={(e) => setMobileProvider(e.target.value)}
-                            className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                            className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
                         >
                             <option value="">Select Provider</option>
                             <option value="MTN">MTN Momo</option>
@@ -113,7 +110,7 @@ export default function SettingsPage() {
                             value={mobileNumber}
                             onChange={(e) => setMobileNumber(e.target.value)}
                             placeholder="Enter your mobile money number"
-                            className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+                            className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
                         />
                     </div>
                 </div>
@@ -227,7 +224,7 @@ export default function SettingsPage() {
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
                 >
                     {saving ? "Saving..." : "Save Changes"}
                 </button>

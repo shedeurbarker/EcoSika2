@@ -9,6 +9,7 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@fontsource/roboto": "^5.2.5",
         "@heroicons/react": "^2.2.0",
         "chart.js": "^4.4.1",
         "encoding": "^0.1.13",

@@ -6,7 +6,6 @@ import { useRecycler } from "@/lib/hooks/useRecycler";
 import SignInWithGoogle from "@/components/SignInWithGoogle";
 import EmailSignIn from "@/components/auth/EmailSignIn";
 import Link from "next/link";
-import Image from "next/image";
 import {
     CameraIcon,
     InformationCircleIcon,

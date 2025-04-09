@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { UserIcon } from "@heroicons/react/24/outline";
+import logo from "@/app/images/logo.jpg";
 
 export default function Header() {
     const { user, signOut } = useAuth();
@@ -46,17 +47,17 @@ export default function Header() {
                     <div className="flex-shrink-0">
                         <Link href="/" className="flex items-center">
                             <Image
-                                src="/logo.png"
+                                src={logo}
                                 alt="EcoSika Logo"
-                                width={40}
-                                height={40}
-                                className="mr-2"
+                                width={70}
+                                height={70}
+                                className="mr-2 text-gray-10"
                                 priority
                             />
                             <div className="flex flex-col">
-                                <span className="text-xl font-bold text-gray-900">EcoSika</span>
+                                <span className="text-xl font-bold text-gray-700">EcoSika</span>
                                 <span className="text-xs font-medium text-green-600 italic">
-                                    Plastic isn&apos;t waste until you waste it
+                                    Plastic isn&apos;t waste until you waste it!
                                 </span>
                             </div>
                         </Link>

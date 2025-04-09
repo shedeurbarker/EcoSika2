@@ -119,9 +119,10 @@ export default function ScanPage() {
             <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Select Bin</label>
                 <select
+                    id="mobileProvider"
                     value={selectedBin || ""}
                     onChange={(e) => setSelectedBin(e.target.value || null)}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                    className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
                 >
                     <option value="">Select a bin</option>
                     {bins.map((bin) => (
