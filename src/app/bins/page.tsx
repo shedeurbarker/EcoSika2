@@ -392,9 +392,10 @@ export default function BinsPage() {
                                     ) : (
                                         <button
                                             onClick={() => handleAddBin(bin.id)}
-                                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                            className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            disabled={bin.status === "active" ? false : true}
                                         >
-                                            <PlusIcon className="h-4 w-4 mr-1" />
+                                            {/* <PlusIcon className="h-4 w-4 mr-1" /> */}
                                             Add
                                         </button>
                                     )}
