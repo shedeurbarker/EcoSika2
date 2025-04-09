@@ -15,8 +15,8 @@ export default function Navigation() {
 
     const navigation = [
         { name: "Home", href: "/" },
-        { name: "My Bins", href: "/bins" },
         { name: "Bottles", href: "/bottles" },
+        { name: "My Bins", href: "/bins" },
         { name: "Earnings", href: "/earnings" },
         { name: "Settings", href: "/settings" },
     ];

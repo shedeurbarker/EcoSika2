@@ -13,7 +13,7 @@ import {
     ExclamationCircleIcon,
     SparklesIcon,
 } from "@heroicons/react/24/outline";
-import { FireIcon, BuildingOfficeIcon } from "@heroicons/react/24/solid";
+import { FireIcon, BuildingOfficeIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/firebase";
 
@@ -309,16 +309,16 @@ export default function Home() {
                     {/* Stats Tab Content */}
                     {activeTab === "stats" && (
                         <div className="py-4">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                 {/* Total Bottles Recycled */}
                                 <div className="bg-white p-4 rounded-lg shadow-sm">
                                     <div className="flex items-center mb-2">
-                                        <SparklesIcon className="text-green-500 mr-2" />
-                                        <h3 className="font-medium text-gray-900">
+                                        <TrashIcon className="text-gray-700 mr-2" />
+                                        <h3 className="font-medium text-gray-500">
                                             Total Bottles Recycled
                                         </h3>
                                     </div>
-                                    <p className="text-2xl font-bold text-gray-900">
+                                    <p className="text-2xl font-bold text-gray-500">
                                         {stats.bottlesRecycled.toLocaleString()} bottles 🌍
                                     </p>
                                 </div>
@@ -326,12 +326,12 @@ export default function Home() {
                                 {/* Community Impact */}
                                 <div className="bg-white p-4 rounded-lg shadow-sm">
                                     <div className="flex items-center mb-2">
-                                        <BuildingOfficeIcon className="text-blue-500 mr-2" />
-                                        <h3 className="font-medium text-gray-900">
+                                        <BuildingOfficeIcon className="text-gray-500 mr-2" />
+                                        <h3 className="font-medium text-gray-500">
                                             Community Impact
                                         </h3>
                                     </div>
-                                    <p className="text-2xl font-bold text-gray-900">
+                                    <p className="text-2xl font-bold text-gray-500">
                                         {Math.floor(stats.bottlesRecycled / 100)} pavement blocks
                                         built 🧱
                                     </p>
@@ -340,13 +340,42 @@ export default function Home() {
                                 {/* Environmental Impact */}
                                 <div className="bg-white p-4 rounded-lg shadow-sm">
                                     <div className="flex items-center mb-2">
-                                        <FireIcon className="text-green-500 mr-2" />
-                                        <h3 className="font-medium text-gray-900">
+                                        {/* <FireIcon className="text-green-500 mr-2" /> */}
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 735 735"
+                                        >
+                                            <path
+                                                d="m367.5 727.4 360-360-360-360-360 360z"
+                                                fill="red"
+                                            />
+                                            <path
+                                                d="M367.5 670.3 64.7 367.5 367.5 64.7l302.8 302.8z"
+                                                fill="#fff"
+                                            />
+                                            <g stroke="#000" stroke-width="5">
+                                                <path d="M223.7 367.2h281.2" />
+                                                <path
+                                                    stroke-width="4"
+                                                    d="m462.7 418 32.98 23.79-31.36 15.1 42.2 3.79-11.36 15.1h23.3l.54 16.76-294.2-1.605s49.2-14.58 57.3-8.635c10.82-4.87 89.8-38.4 89.8-36.2m-75.72-25.98 1.62-85.4-42.72-23.2s-6.49-4.33-15.68-1.62c-3.25 1.08-7.57 2.16-7.57 2.16s23.3-19.47 27.58-17.84c4.33 1.62 34.61 16.22 34.61 16.22s-3.25-22.71-11.36-29.2-39.47-31.36-39.47-31.36v-5.95l42.72 25.96s1.62-24.87-7-39.47c-8.65-14.6-15.1-27.58-15.1-27.58l2.7-2.16 21.1 32.44 7-22.2 4.33-1.08s-5.41 31.36-1.62 41.1c3.79 9.73 17.84 62.73 17.84 62.73l21.1-30.3s.54-12.44-.54-21.1c-1.08-8.65-2.7-48.67-2.7-48.67h3.79l5.95 43.8 34.1-39.47v4.33s-33.51 42.2-31.89 51.4c1.62 9.19 3.24 14.6-2.7 27.58s-9.73 22.2-9.73 22.2 17.84-21.1 25.96-22.71c8.11-.54 18.91.54 26.48-5.95s25.96-27 25.96-27l-28.66 44.3s-13.51.54-18.91 6.49c-5.41 5.95-27.58 31.36-27.58 31.36v58.4l36.76 18.38-44.87 6.49-10.82 15.68-14.6-12.44-40.62 3.735z"
+                                                />
+                                                <path
+                                                    fill="#fff"
+                                                    d="M355.2 445.1c10.29-4.29 27-11.36 36.76-25.42 10.1-14.54 45.96-75.7 95.2-70.8-2.7 6.49-11.36 20.55-11.36 20.55l35.1-10.82s.54 46.5-65.97 76.2c-30.82 10.82-37.3 11.36-40 15.1-2.7 3.79-15.1 22.71-15.1 22.71l-55.14-24.3s14.06-.515 20.51-3.215z"
+                                                />
+                                            </g>
+                                            <ellipse cy="385.8" cx="484.3" rx="5.95" ry="5.13" />
+                                        </svg>
+                                        <h3 className="font-medium text-gray-500">
                                             Environmental Impact
                                         </h3>
                                     </div>
-                                    <p className="text-2xl font-bold text-gray-900">
-                                        {stats.co2Saved}kg CO2 saved 🌳
+                                    <p className="text-2xl font-bold text-gray-500">
+                                        {stats.co2Saved}kg CO
+                                        <span style={{ fontSize: "0.75em", verticalAlign: "sub" }}>
+                                            2
+                                        </span>{" "}
+                                        saved
                                     </p>
                                     <p className="text-xs text-gray-600 mt-1">
                                         Equivalent to {stats.treesEquivalent} trees planted
@@ -436,14 +465,23 @@ export default function Home() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="bg-green-50 rounded-lg p-4">
                                 <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-sm font-medium text-gray-600">CO2 Saved</h3>
+                                    <h3 className="text-sm font-medium text-gray-600">
+                                        CO
+                                        <span style={{ fontSize: "0.75em", verticalAlign: "sub" }}>
+                                            2
+                                        </span>{" "}
+                                        Saved
+                                    </h3>
                                     <BuildingOfficeIcon className="h-5 w-5 text-green-500" />
                                 </div>
                                 <p className="text-2xl font-bold text-gray-900">
                                     {stats.co2Saved}kg
                                 </p>
                                 <p className="text-sm text-gray-600">
-                                    You&apos;ve saved {stats.co2Saved}kg of CO2 –
+                                    You&apos;ve saved {stats.co2Saved}kg of CO
+                                    <span style={{ fontSize: "0.75em", verticalAlign: "sub" }}>
+                                        2
+                                    </span>
                                 </p>
                             </div>
                             <div className="bg-blue-50 rounded-lg p-4">
@@ -451,7 +489,7 @@ export default function Home() {
                                     <h3 className="text-sm font-medium text-gray-600">
                                         Trees Equivalent
                                     </h3>
-                                    <SparklesIcon className="h-5 w-5 text-blue-500" />
+                                    <SparklesIcon className="h-5 w-5 text-green-500" />
                                 </div>
                                 <p className="text-2xl font-bold text-gray-900">
                                     {stats.treesEquivalent}
@@ -464,27 +502,6 @@ export default function Home() {
                     </div>
                 </div>
             </section>
-
-            {/* Seed Bins Section - Only visible to authenticated users */}
-            {/* <section className="max-w-7xl mx-auto px-4 mt-8">
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Developer Tools</h2>
-                    <button
-                        onClick={async () => {
-                            try {
-                                const response = await fetch("/api/seed-bins");
-                                const data = await response.json();
-                                alert(data.message);
-                            } catch (error) {
-                                alert("Error seeding bins: " + error);
-                            }
-                        }}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                        Seed 5 Bins
-                    </button>
-                </div>
-            </section> */}
         </main>
     );
 }
