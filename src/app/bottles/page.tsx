@@ -14,7 +14,7 @@ import {
     orderBy,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/firebase";
-import { CameraIcon } from "@heroicons/react/24/outline";
+import { CameraIcon, MapPinIcon } from "@heroicons/react/24/outline";
 
 interface ScannedBottle {
     id: string;
@@ -41,7 +41,10 @@ export default function ScanPage() {
     const [totalBottles, setTotalBottles] = useState<number | 0>(0);
     const [bins, setBins] = useState<Bin[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isBulkUpload, setBulkUpload] = useState(false);
+    const [isScanUpload, setScanUpload] = useState(false);
     const [bottlesRecycled, setBottlesRecycled] = useState<BottlesRecycled[]>([]);
+    const [activeTab, setActiveTab] = useState("bulk");
 
     useEffect(() => {
         if (user) {
@@ -150,8 +153,38 @@ export default function ScanPage() {
         <div className="max-w-4xl mx-auto p-6">
             <h1 className="text-2xl font-bold mb-6 text-gray-900">Recycle Bottles</h1>
 
+            <section className="mb-6">
+                <div className="bg-white p-6 rounded-lg shadow mb-8">
+                    <div className="border-b border-gray-200 flex justify-between">
+                        <button
+                            onClick={() => {
+                                setBulkUpload(isBulkUpload);
+                                setActiveTab("bulk");
+                            }}
+                            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        >
+                            Bulk Upload
+                        </button>
+                        <button
+                            onClick={() => {
+                                setScanUpload(isScanUpload);
+                                setActiveTab("scan");
+                            }}
+                            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        >
+                            Scan Bottles
+                        </button>
+                    </div>
+                </div>
+            </section>
+
             <div className="bg-white p-6 rounded-lg shadow mb-8">
-                <h2 className="text-lg font-medium text-gray-900">Recycle Now</h2>
+                <button
+                    onClick={() => setBulkUpload(!isBulkUpload)}
+                    className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                >
+                    {isBulkUpload ? "Close" : "Withdraw"}
+                </button>
                 <form onSubmit={handleWithdrawal} className="space-y-6">
                     <div className="space-y-4">
                         <div>
