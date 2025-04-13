@@ -44,8 +44,27 @@ export default function ScanPage() {
     const [isBulkUpload, setBulkUpload] = useState(false);
     const [isScanUpload, setScanUpload] = useState(false);
     const [bottlesRecycled, setBottlesRecycled] = useState<BottlesRecycled[]>([]);
-    const [activeTab, setActiveTab] = useState("bulk");
+    const [activeTab, setActiveTab] = useState("scan");
+    const [isOnline, setIsOnline] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
 
+    // Check if user is online
+    useEffect(() => {
+        const handleOnlineStatus = () => {
+            setIsOnline(navigator.onLine);
+        };
+
+        window.addEventListener("online", handleOnlineStatus);
+        window.addEventListener("offline", handleOnlineStatus);
+
+        handleOnlineStatus();
+        return () => {
+            window.removeEventListener("online", handleOnlineStatus);
+            window.removeEventListener("offline", handleOnlineStatus);
+        };
+    }, []);
+
+    // Fetch bins
     useEffect(() => {
         if (user) {
             const fetchBins = async () => {
@@ -58,10 +77,11 @@ export default function ScanPage() {
                 setBins(binsData);
             };
 
-            fetchBins();
+            //fetchBins();
         }
     }, [user]);
 
+    // Fetch bottles
     const fetchData = useCallback(async () => {
         if (!user) return;
 
@@ -93,9 +113,111 @@ export default function ScanPage() {
         }
     }, [user]);
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    // useEffect(() => {
+    //     fetchData();
+    // }, [fetchData]);
+    const config = {
+        qrbox: {
+            width: 250,
+            height: 250,
+        },
+        fps: 30,
+        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+        useBarCodeDetectorIfSupported: true,
+        aspectRatio: 1.7777778,
+    };
+
+    let scanner: Html5QrcodeScanner | null = null;
+
+    const scanMethod = () => {
+        if (isOnline && user) {
+            console.log("scanner online");
+            scanner = new Html5QrcodeScanner("reader", config, false);
+        }
+    };
+    // useEffect(() => {
+    //     if (isOnline && user) {
+    //         console.log("scanner online");
+    //         scanner = new Html5QrcodeScanner("reader", config, false);
+    //         if (scanner !== null) {
+    //             console.log("scanner is not null");
+    //         } else {
+    //             console.log("scanner is null");
+    //         }
+    //     }
+    // }, [isOnline, user]);
+
+    // // Scan bottles
+    // useEffect(() => {
+    //     if (isOnline && user) {
+    //         console.log("Online");
+    //         const scanner = new Html5QrcodeScanner(
+    //             "reader",
+    //             {
+    //                 qrbox: {
+    //                     width: 250,
+    //                     height: 250,
+    //                 },
+    //                 fps: 30,
+    //                 supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+    //                 useBarCodeDetectorIfSupported: true,
+    //                 aspectRatio: 1.7777778,
+    //             },
+    //             false
+    //         );
+    //         scanner.render((decodedText: string) => onScanSuccess(decodedText), onScanError);
+    //     } else {
+    //         console.log("Offline");
+    //     }
+    // }, [isOnline, user]);
+
+    // Scan bottles
+    const startScan = useCallback(
+        async (status: boolean) => {
+            if (isOnline && user) {
+                // scanner = new Html5QrcodeScanner(
+                //     "reader",
+                //     {
+                //         qrbox: {
+                //             width: 250,
+                //             height: 250,
+                //         },
+                //         fps: 30,
+                //         supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+                //         useBarCodeDetectorIfSupported: true,
+                //         aspectRatio: 1.7777778,
+                //     },
+                //     false
+                // );
+
+                if (!status) {
+                    if (scanner !== null) {
+                        scanner?.clear();
+                    }
+                    // scanner = null;
+                } else {
+                    scanMethod();
+                    if (scanner !== null) {
+                        scanner.render(
+                            (decodedText: string) => onScanSuccess(decodedText),
+                            onScanError
+                        );
+                    }
+                }
+            } else {
+                console.log("offline");
+            }
+        },
+        [isOnline, user]
+    );
+
+    const onScanSuccess = (decodedText: string) => {
+        console.log("Scanned:", decodedText);
+    };
+
+    const onScanError = (error: any) => {
+        //console.error("Scan error:", error);
+    };
 
     const handleWithdrawal = async () => {
         if (!user) return;
@@ -144,7 +266,8 @@ export default function ScanPage() {
     if (!user) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <p className="text-lg">Loading...</p>
+                <p className="text-lg text-gray-400">Loading...</p>
+                <div id="reader" className="hidden"></div>
             </div>
         );
     }
@@ -153,89 +276,124 @@ export default function ScanPage() {
         <div className="max-w-4xl mx-auto p-6">
             <h1 className="text-2xl font-bold mb-6 text-gray-900">Recycle Bottles</h1>
 
-            <section className="mb-6">
-                <div className="bg-white p-6 rounded-lg shadow mb-8">
-                    <div className="border-b border-gray-200 flex justify-between">
+            <div className="bg-white p-6 rounded-lg shadow mb-8">
+                {/* selector buttons */}
+                <div className="flex justify-end">
+                    <button
+                        onClick={() => {
+                            setBulkUpload(isBulkUpload);
+                            setActiveTab("bulk");
+                        }}
+                        className={`${
+                            activeTab === "bulk"
+                                ? "bg-green-600 text-white hover:bg-green-700"
+                                : "bg-gray-200 text-gray-500 hover:bg-gray-300"
+                        } px-4 py-2 rounded-md mr-6 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
+                    >
+                        Bulk Upload
+                    </button>
+                    <button
+                        onClick={() => {
+                            setScanUpload(isScanUpload);
+                            setActiveTab("scan");
+                        }}
+                        className={`${
+                            activeTab === "scan"
+                                ? "bg-green-600 text-white hover:bg-green-700"
+                                : "bg-gray-200 text-gray-500 hover:bg-gray-300"
+                        } px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
+                    >
+                        Scan Bottles
+                    </button>
+                </div>
+                {/* Bulk Upload */}
+                {activeTab === "bulk" && (
+                    <div>
+                        <p className="text-lg font-medium text-gray-900 mb-4">
+                            Upload a list of Bottles you have packaged.
+                        </p>
+                        <form onSubmit={handleWithdrawal} className="space-y-6">
+                            <div className="space-y-4">
+                                <div>
+                                    <select
+                                        id="selectedBin"
+                                        value={selectedBin ?? "Select Bin"}
+                                        onChange={(e) => setSelectedBin(e.target.value)}
+                                        className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                                    >
+                                        <option value="">Select Bin</option>
+                                        <option value="MTN">MTN Momo</option>
+                                        <option value="Telecel">Telecel Cash</option>
+                                        <option value="AirtelTigo">AirtelTigo Cash</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label
+                                        htmlFor="totalBottles"
+                                        className="block text-sm font-medium text-gray-700"
+                                    >
+                                        Number of Bottles in this Batch
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="amount"
+                                        value={totalBottles}
+                                        onChange={(e) => setTotalBottles(e.target.valueAsNumber)}
+                                        className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                                        required
+                                        min="0"
+                                        step="1"
+                                        placeholder="Total bottles"
+                                    />
+                                </div>
+                                <div className="mt-4">
+                                    <button
+                                        onClick={handleWithdrawal}
+                                        disabled={
+                                            isSubmitting ||
+                                            totalBottles <= 0 ||
+                                            !selectedBin ||
+                                            !totalBottles
+                                        }
+                                        className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isSubmitting ? "Submitting Bottles..." : "Submit Bottles"}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                )}
+
+                {/* Scan Bottles */}
+                <div className={`${activeTab === "scan" ? "block" : "hidden"}`}>
+                    <div className="bg-white rounded-lg shadow-md mt-8 p-4 mb-6 text-gray-400 w-full h-full">
+                        <div id="reader"></div>
+                    </div>
+
+                    {/* start scan button */}
+                    <div className="flex justify-center">
                         <button
                             onClick={() => {
-                                setBulkUpload(isBulkUpload);
-                                setActiveTab("bulk");
+                                if (isScanning) {
+                                    startScan(false); // stop scan
+                                    setIsScanning(false);
+                                } else {
+                                    startScan(true); //
+                                    setIsScanning(true);
+                                }
                             }}
-                            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                            className={`${
+                                !isScanning
+                                    ? "bg-green-600 text-white hover:bg-green-700"
+                                    : "bg-gray-200 text-gray-500 hover:bg-gray-300"
+                            } px-4 py-2 rounded-md mr-6 focus:outline-none`}
                         >
-                            Bulk Upload
-                        </button>
-                        <button
-                            onClick={() => {
-                                setScanUpload(isScanUpload);
-                                setActiveTab("scan");
-                            }}
-                            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                        >
-                            Scan Bottles
+                            {isScanning ? "Stop Scan" : "Start Scan"}
                         </button>
                     </div>
                 </div>
-            </section>
-
-            <div className="bg-white p-6 rounded-lg shadow mb-8">
-                <button
-                    onClick={() => setBulkUpload(!isBulkUpload)}
-                    className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                >
-                    {isBulkUpload ? "Close" : "Withdraw"}
-                </button>
-                <form onSubmit={handleWithdrawal} className="space-y-6">
-                    <div className="space-y-4">
-                        <div>
-                            <select
-                                id="selectedBin"
-                                value={selectedBin ?? "Select Bin"}
-                                onChange={(e) => setSelectedBin(e.target.value)}
-                                className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
-                            >
-                                <option value="">Select Bin</option>
-                                <option value="MTN">MTN Momo</option>
-                                <option value="Telecel">Telecel Cash</option>
-                                <option value="AirtelTigo">AirtelTigo Cash</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label
-                                htmlFor="totalBottles"
-                                className="block text-sm font-medium text-gray-700"
-                            >
-                                Number of Bottles in this Batch
-                            </label>
-                            <input
-                                type="number"
-                                id="amount"
-                                value={totalBottles}
-                                onChange={(e) => setTotalBottles(e.target.valueAsNumber)}
-                                className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
-                                required
-                                min="0"
-                                step="1"
-                                placeholder="Total bottles"
-                            />
-                        </div>
-                        <div className="mt-4">
-                            <button
-                                onClick={handleWithdrawal}
-                                disabled={
-                                    isSubmitting ||
-                                    totalBottles <= 0 ||
-                                    !selectedBin ||
-                                    !totalBottles
-                                }
-                                className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isSubmitting ? "Submitting Bottles..." : "Submit Bottles"}
-                            </button>
-                        </div>
-                    </div>
-                </form>
             </div>
 
             {/* Bottles History */}
