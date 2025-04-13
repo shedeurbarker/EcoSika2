@@ -63,7 +63,7 @@ export default function SignInWithGoogle() {
     return (
         <button
             onClick={handleSignIn}
-            className="w-full flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-200 transition-colors"
+            className="w-full h-10 flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-200 transition-colors"
         >
             <img
                 src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" // Replace with your image URL

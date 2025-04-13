@@ -7,10 +7,10 @@ import SignInWithGoogle from "@/components/SignInWithGoogle";
 import EmailSignIn from "@/components/auth/EmailSignIn";
 import Link from "next/link";
 import {
-    CameraIcon,
+    FingerPrintIcon,
     InformationCircleIcon,
     MapPinIcon,
-    ExclamationCircleIcon,
+    ArrowPathRoundedSquareIcon,
     SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { FireIcon, BuildingOfficeIcon, TrashIcon } from "@heroicons/react/24/solid";
@@ -59,6 +59,7 @@ const mockData = {
             status: "high",
         },
     ],
+    recyclerCode: "ABC2",
 };
 
 interface Stats {
@@ -142,16 +143,6 @@ export default function Home() {
         );
     }
 
-    // if (loading || !recycler) {
-    //     return (
-    //         <main className="min-h-screen p-8">
-    //             <div className="max-w-4xl mx-auto">
-    //                 <p className="text-center text-gray-600">Loading your profile...</p>
-    //             </div>
-    //         </main>
-    //     );
-    // }
-
     return (
         <main className="min-h-screen pb-24">
             {/* Wallet & Earnings Summary */}
@@ -184,6 +175,21 @@ export default function Home() {
                             <p className="text-3xl font-bold text-gray-900">
                                 ₵{mockData.bottleRate.toFixed(2)}
                                 <span className="text-lg">/bottle</span>
+                            </p>
+                        </div>
+
+                        {/* recycler ID */}
+                        <div className="bg-gray-100 rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <h2 className="text-sm font-medium text-gray-600">
+                                    Your Recycler&apos;s ID
+                                </h2>
+                                <button className="text-blue-500 hover:text-blue-700">
+                                    <FingerPrintIcon className="h-6 w-6" />
+                                </button>
+                            </div>
+                            <p className="text-3xl font-bold text-green-600">
+                                {mockData.recyclerCode}
                             </p>
                         </div>
 
@@ -223,9 +229,9 @@ export default function Home() {
             {/* Primary Action Button - Scan Bottles */}
             <div className="fixed bottom-20 right-8 z-100">
                 <Link href="/bottles">
-                    <button className="bg-green-700 text-white rounded-full p-4 shadow-lg flex flex-col items-center">
-                        <CameraIcon className="h-10 w-8" />
-                        <span className="text-xs mt-1">Scan Bottles</span>
+                    <button className="bg-green-700 text-white rounded-full p-2 shadow-lg flex flex-col items-center">
+                        <ArrowPathRoundedSquareIcon className="h-6 w-11" />
+                        <span className="text-xs mt-1">Recycle</span>
                     </button>
                 </Link>
             </div>
