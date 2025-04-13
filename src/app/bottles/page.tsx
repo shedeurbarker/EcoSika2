@@ -23,8 +23,10 @@ interface ScannedBottle {
 
 interface Bin {
     id: string;
-    name: string;
-    location: string;
+    binId: string;
+    location: {
+        address: string;
+    };
 }
 
 interface BottlesRecycled {
@@ -47,6 +49,7 @@ export default function ScanPage() {
     const [activeTab, setActiveTab] = useState("scan");
     const [isOnline, setIsOnline] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
+    const [scannedBottles, setScannedBottles] = useState<ScannedBottle[]>([]);
 
     // Check if user is online
     useEffect(() => {
@@ -68,16 +71,17 @@ export default function ScanPage() {
     useEffect(() => {
         if (user) {
             const fetchBins = async () => {
-                const binsQuery = query(collection(db, "bins"), where("userId", "==", user.uid));
+                const binsQuery = query(collection(db, "bins")); //where("userId", "==", user.uid)
                 const binsSnapshot = await getDocs(binsQuery);
                 const binsData = binsSnapshot.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
                 })) as Bin[];
                 setBins(binsData);
+                console.log(binsData);
             };
 
-            //fetchBins();
+            fetchBins();
         }
     }, [user]);
 
@@ -113,9 +117,10 @@ export default function ScanPage() {
         }
     }, [user]);
 
-    // useEffect(() => {
-    //     fetchData();
-    // }, [fetchData]);
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
     const config = {
         qrbox: {
             width: 250,
@@ -131,70 +136,16 @@ export default function ScanPage() {
 
     const scanMethod = () => {
         if (isOnline && user) {
-            console.log("scanner online");
             scanner = new Html5QrcodeScanner("reader", config, false);
         }
     };
-    // useEffect(() => {
-    //     if (isOnline && user) {
-    //         console.log("scanner online");
-    //         scanner = new Html5QrcodeScanner("reader", config, false);
-    //         if (scanner !== null) {
-    //             console.log("scanner is not null");
-    //         } else {
-    //             console.log("scanner is null");
-    //         }
-    //     }
-    // }, [isOnline, user]);
-
-    // // Scan bottles
-    // useEffect(() => {
-    //     if (isOnline && user) {
-    //         console.log("Online");
-    //         const scanner = new Html5QrcodeScanner(
-    //             "reader",
-    //             {
-    //                 qrbox: {
-    //                     width: 250,
-    //                     height: 250,
-    //                 },
-    //                 fps: 30,
-    //                 supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-    //                 useBarCodeDetectorIfSupported: true,
-    //                 aspectRatio: 1.7777778,
-    //             },
-    //             false
-    //         );
-    //         scanner.render((decodedText: string) => onScanSuccess(decodedText), onScanError);
-    //     } else {
-    //         console.log("Offline");
-    //     }
-    // }, [isOnline, user]);
 
     // Scan bottles
     const startScan = useCallback(
         async (status: boolean) => {
             if (isOnline && user) {
-                // scanner = new Html5QrcodeScanner(
-                //     "reader",
-                //     {
-                //         qrbox: {
-                //             width: 250,
-                //             height: 250,
-                //         },
-                //         fps: 30,
-                //         supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-                //         useBarCodeDetectorIfSupported: true,
-                //         aspectRatio: 1.7777778,
-                //     },
-                //     false
-                // );
-
-                if (!status) {
-                    if (scanner !== null) {
-                        scanner?.clear();
-                    }
-                    // scanner = null;
+                if (!status && scanner !== null) {
+                    scanner?.clear();
                 } else {
                     scanMethod();
                     if (scanner !== null) {
@@ -212,55 +163,13 @@ export default function ScanPage() {
     );
 
     const onScanSuccess = (decodedText: string) => {
-        console.log("Scanned:", decodedText);
+        const onScanSuccess = (decodedText: string) => {
+            setScannedBottles([...scannedBottles, { id: decodedText, timestamp: new Date() }]);
+        };
     };
 
     const onScanError = (error: any) => {
         //console.error("Scan error:", error);
-    };
-
-    const handleWithdrawal = async () => {
-        if (!user) return;
-
-        const number = totalBottles;
-        if (isNaN(number) || number <= 0) {
-            alert("Please enter a valid number");
-            return;
-        }
-
-        if (!selectedBin) {
-            alert("Please sellect a Bin to proceed.");
-            return;
-        }
-
-        setIsSubmitting(true);
-        try {
-            // Create withdrawal request
-            // const withdrawalRef = await addDoc(collection(db, "withdrawals"), {
-            //     userId: user.uid,
-            //     amount: amount,
-            //     provider: recycler.mobileProvider,
-            //     phoneNumber: recycler.mobileNumber,
-            //     status: "pending",
-            //     timestamp: serverTimestamp(),
-            // });
-
-            // Update recycler's wallet balance and pending balance
-            // await updateDoc(doc(db, "recyclers", user.uid), {
-            //     walletBalance: increment(-amount),
-            //     pendingBalance: increment(amount),
-            // });
-
-            // Refresh data immediately
-            //await fetchData();
-
-            setTotalBottles(0);
-        } catch (error) {
-            console.error("Error processing recycle:", error);
-            alert("Failed to process. Please try again.");
-        } finally {
-            setIsSubmitting(false);
-        }
     };
 
     if (!user) {
@@ -312,7 +221,7 @@ export default function ScanPage() {
                         <p className="text-lg font-medium text-gray-900 mb-4">
                             Upload a list of Bottles you have packaged.
                         </p>
-                        <form onSubmit={handleWithdrawal} className="space-y-6">
+                        <form className="space-y-6">
                             <div className="space-y-4">
                                 <div>
                                     <select
@@ -322,9 +231,11 @@ export default function ScanPage() {
                                         className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
                                     >
                                         <option value="">Select Bin</option>
-                                        <option value="MTN">MTN Momo</option>
-                                        <option value="Telecel">Telecel Cash</option>
-                                        <option value="AirtelTigo">AirtelTigo Cash</option>
+                                        {bins.map((bin) => (
+                                            <option value={bin.id} key={bin.id}>
+                                                {`${bin.binId} - ${bin.location.address}`}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
@@ -349,7 +260,7 @@ export default function ScanPage() {
                                 </div>
                                 <div className="mt-4">
                                     <button
-                                        onClick={handleWithdrawal}
+                                        //onClick={}
                                         disabled={
                                             isSubmitting ||
                                             totalBottles <= 0 ||
@@ -373,7 +284,7 @@ export default function ScanPage() {
                     </div>
 
                     {/* start scan button */}
-                    <div className="flex justify-center">
+                    <div className="flex justify-center wrow-span-1">
                         <button
                             onClick={() => {
                                 if (isScanning) {
@@ -386,12 +297,19 @@ export default function ScanPage() {
                             }}
                             className={`${
                                 !isScanning
-                                    ? "bg-green-600 text-white hover:bg-green-700"
+                                    ? "bg-orange-600 text-white hover:bg-orange-700"
                                     : "bg-gray-200 text-gray-500 hover:bg-gray-300"
-                            } px-4 py-2 rounded-md mr-6 focus:outline-none`}
+                            } px-4 py-2 rounded-md mr-6 focus:outline-none h-24 w-24 mt-5`}
                         >
                             {isScanning ? "Stop Scan" : "Start Scan"}
                         </button>
+                        <div className="bg-white rounded-lg shadow-md p-0 mb-0 text-black w-36 h-36">
+                            <div className="text-center text-gray-400">Bottles Scanned</div>
+                            <div className="text-black-800 text-8xl font-bold text-center">0</div>
+                            {scannedBottles.map((bottle) => (
+                                <div key={bottle.id}>{bottle.id}</div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

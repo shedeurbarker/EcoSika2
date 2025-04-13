@@ -82,7 +82,6 @@ export default function ScanPage() {
 
     const onScanSuccess = (decodedText: string) => {
         setScannedBottles([...scannedBottles, { id: decodedText, timestamp: new Date() }]);
-        console.log(decodedText);
     };
 
     const onScanError = (error: any) => {
