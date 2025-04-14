@@ -75,7 +75,7 @@ interface Stats {
 
 export default function Home() {
     const { user } = useAuth();
-    const { recycler, loading } = useRecycler();
+    //    const { recycler, loading } = useRecycler();
     const [activeTab, setActiveTab] = useState("stats");
     const [stats, setStats] = useState<Stats>({
         walletBalance: 0,
@@ -118,29 +118,27 @@ export default function Home() {
     if (!user) {
         return (
             <main className="min-h-screen p-8">
-                <Suspense fallback={<div>Loading...</div>}>
-                    <div className="max-w-4xl mx-auto space-y-8">
-                        <h1 className="text-4xl font-bold text-center text-gray-900">
-                            Welcome to EcoSika
-                        </h1>
+                <div className="max-w-4xl mx-auto space-y-8">
+                    <h1 className="text-4xl font-bold text-center text-gray-900">
+                        Welcome to EcoSika
+                    </h1>
 
-                        <div className="space-y-6">
-                            <p className="text-center text-gray-600">Please sign in to continue</p>
-                            <div className="max-w-md mx-auto space-y-4">
-                                <SignInWithGoogle />
-                                <div className="relative">
-                                    <div className="absolute inset-0 flex items-center">
-                                        <div className="w-full border-t border-gray-300" />
-                                    </div>
-                                    <div className="relative flex justify-center text-sm">
-                                        <span className="px-2 bg-white text-gray-500">Or</span>
-                                    </div>
+                    <div className="space-y-6">
+                        <p className="text-center text-gray-600">Please sign in to continue</p>
+                        <div className="max-w-md mx-auto space-y-4">
+                            <SignInWithGoogle />
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-gray-300" />
                                 </div>
-                                <EmailSignIn />
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="px-2 bg-white text-gray-500">Or</span>
+                                </div>
                             </div>
+                            <EmailSignIn />
                         </div>
                     </div>
-                </Suspense>
+                </div>
             </main>
         );
     }
@@ -361,10 +359,10 @@ export default function Home() {
                                                 d="M367.5 670.3 64.7 367.5 367.5 64.7l302.8 302.8z"
                                                 fill="#fff"
                                             />
-                                            <g stroke="#000" stroke-width="5">
+                                            <g stroke="#000" strokeWidth="5">
                                                 <path d="M223.7 367.2h281.2" />
                                                 <path
-                                                    stroke-width="4"
+                                                    strokeWidth="4"
                                                     d="m462.7 418 32.98 23.79-31.36 15.1 42.2 3.79-11.36 15.1h23.3l.54 16.76-294.2-1.605s49.2-14.58 57.3-8.635c10.82-4.87 89.8-38.4 89.8-36.2m-75.72-25.98 1.62-85.4-42.72-23.2s-6.49-4.33-15.68-1.62c-3.25 1.08-7.57 2.16-7.57 2.16s23.3-19.47 27.58-17.84c4.33 1.62 34.61 16.22 34.61 16.22s-3.25-22.71-11.36-29.2-39.47-31.36-39.47-31.36v-5.95l42.72 25.96s1.62-24.87-7-39.47c-8.65-14.6-15.1-27.58-15.1-27.58l2.7-2.16 21.1 32.44 7-22.2 4.33-1.08s-5.41 31.36-1.62 41.1c3.79 9.73 17.84 62.73 17.84 62.73l21.1-30.3s.54-12.44-.54-21.1c-1.08-8.65-2.7-48.67-2.7-48.67h3.79l5.95 43.8 34.1-39.47v4.33s-33.51 42.2-31.89 51.4c1.62 9.19 3.24 14.6-2.7 27.58s-9.73 22.2-9.73 22.2 17.84-21.1 25.96-22.71c8.11-.54 18.91.54 26.48-5.95s25.96-27 25.96-27l-28.66 44.3s-13.51.54-18.91 6.49c-5.41 5.95-27.58 31.36-27.58 31.36v58.4l36.76 18.38-44.87 6.49-10.82 15.68-14.6-12.44-40.62 3.735z"
                                                 />
                                                 <path

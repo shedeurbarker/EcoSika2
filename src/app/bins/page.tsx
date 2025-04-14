@@ -169,8 +169,8 @@ export default function BinsPage() {
 
     if (!user) {
         return (
-            <div className="p-6">
-                <p className="text-center text-gray-600">Please sign in to view bins.</p>
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-lg text-gray-400">Loading...</p>
             </div>
         );
     }

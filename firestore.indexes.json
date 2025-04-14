@@ -12,7 +12,7 @@
             "collectionGroup": "bottles",
             "queryScope": "COLLECTION",
             "fields": [
-                { "fieldPath": "bottleid", "order": "ASCENDING" },
+                { "fieldPath": "userId", "order": "ASCENDING" },
                 { "fieldPath": "timestamp", "order": "DESCENDING" }
             ]
         }

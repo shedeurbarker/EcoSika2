@@ -151,7 +151,7 @@ export default function EarningsPage() {
     if (!user) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <p className="text-lg text-gray-400">Please sign in to view earnings</p>
+                <p className="text-lg text-gray-400">Loading...</p>
             </div>
         );
     }

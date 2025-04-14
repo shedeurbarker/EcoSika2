@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
 import { useAuth } from "@/lib/hooks/useAuth";
 import {
@@ -14,7 +14,6 @@ import {
     orderBy,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/firebase";
-import { CameraIcon, MapPinIcon } from "@heroicons/react/24/outline";
 
 interface ScannedBottle {
     id: string;
@@ -51,6 +50,9 @@ export default function ScanPage() {
     const [isScanning, setIsScanning] = useState(false);
     const [scannedBottles, setScannedBottles] = useState<ScannedBottle[]>([]);
 
+    const [scanResult, setScanResult] = useState(null);
+    const [showScanner, setShowScanner] = useState(false);
+    const qrRef = useRef(null);
     // Check if user is online
     useEffect(() => {
         const handleOnlineStatus = () => {
@@ -132,11 +134,11 @@ export default function ScanPage() {
         aspectRatio: 1.7777778,
     };
 
-    let scanner: Html5QrcodeScanner | null = null;
+    let scannerOld: Html5QrcodeScanner | null = null;
 
     const scanMethod = () => {
         if (isOnline && user) {
-            scanner = new Html5QrcodeScanner("reader", config, false);
+            scannerOld = new Html5QrcodeScanner("reader", config, false);
         }
     };
 
@@ -144,12 +146,12 @@ export default function ScanPage() {
     const startScan = useCallback(
         async (status: boolean) => {
             if (isOnline && user) {
-                if (!status && scanner !== null) {
-                    scanner?.clear();
+                if (!status && scannerOld !== null) {
+                    scannerOld?.clear();
                 } else {
                     scanMethod();
-                    if (scanner !== null) {
-                        scanner.render(
+                    if (scannerOld !== null) {
+                        scannerOld.render(
                             (decodedText: string) => onScanSuccess(decodedText),
                             onScanError
                         );
@@ -174,7 +176,28 @@ export default function ScanPage() {
         //console.error("Scan error:", error);
     };
 
-    if (!user) {
+    const handleError = (err: any) => {
+        console.error(err);
+    };
+
+    const handleScan = (data: any) => {
+        if (data) {
+            setScanResult(data.text);
+            setShowScanner(false); // Stop scanning after successful scan
+        }
+    };
+
+    const handleButtonClick = () => {
+        setShowScanner(true);
+        setScanResult(null); // Clear previous result
+    };
+
+    const previewStyle = {
+        height: 240,
+        width: 320,
+    };
+
+    if (user) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <p className="text-lg text-gray-400">Loading...</p>
@@ -288,15 +311,15 @@ export default function ScanPage() {
                     {/* start scan button */}
                     <div className="flex justify-center items-center">
                         <button
-                            onClick={() => {
-                                if (isScanning) {
-                                    startScan(false); // stop scan
-                                    setIsScanning(false);
-                                } else {
-                                    startScan(true); //
-                                    setIsScanning(true);
-                                }
-                            }}
+                            // onClick={() => {
+                            //     if (isScanning) {
+                            //         startScan(false); // stop scan
+                            //         setIsScanning(false);
+                            //     } else {
+                            //         startScan(true); //
+                            //         setIsScanning(true);
+                            //     }
+                            // }}
                             className={`${
                                 !isScanning
                                     ? "bg-emerald-700 text-white hover:bg-emerald-600"
@@ -310,9 +333,9 @@ export default function ScanPage() {
                             <div className="text-gray-700 text-4xl font-bold text-center">
                                 {scannedBottles.length}
                             </div>
-                            {/* {scannedBottles.map((bottle) => (
+                            {scannedBottles.map((bottle) => (
                                 <div key={bottle.id}>{bottle.id}</div>
-                            ))} */}
+                            ))}
                         </div>
                     </div>
                 </div>

@@ -58,7 +58,11 @@ export default function SettingsPage() {
     };
 
     if (!user) {
-        return <div className="p-6">Please sign in to access settings.</div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-lg text-gray-400">Loading...</p>
+            </div>
+        );
     }
 
     return (
