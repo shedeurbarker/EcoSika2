@@ -29,11 +29,13 @@ interface Bin {
 }
 
 interface BottlesRecycled {
-    id: string;
-    date: Date;
+    id: string | null;
+    userId: string;
+    binId: string;
     total: number;
     earnings: number;
-    status: "pending" | "credited" | "rejected";
+    status: string;
+    timestamp: Date;
 }
 
 export default function ScanPage() {
@@ -45,14 +47,13 @@ export default function ScanPage() {
     const [isBulkUpload, setBulkUpload] = useState(false);
     const [isScanUpload, setScanUpload] = useState(false);
     const [bottlesRecycled, setBottlesRecycled] = useState<BottlesRecycled[]>([]);
-    const [activeTab, setActiveTab] = useState("scan");
+    const [activeTab, setActiveTab] = useState("bulk");
     const [isOnline, setIsOnline] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
     const [scannedBottles, setScannedBottles] = useState<ScannedBottle[]>([]);
 
     const [scanResult, setScanResult] = useState(null);
     const [showScanner, setShowScanner] = useState(false);
-    const qrRef = useRef(null);
     // Check if user is online
     useEffect(() => {
         const handleOnlineStatus = () => {
@@ -87,7 +88,7 @@ export default function ScanPage() {
         }
     }, [user]);
 
-    // Fetch bottles
+    // Fetch recycled history
     const fetchData = useCallback(async () => {
         if (!user) return;
 
@@ -102,12 +103,15 @@ export default function ScanPage() {
 
             const bottlesList = bottleSnapshot.docs.map((doc) => {
                 const data = doc.data();
+                console.log(data);
                 return {
-                    id: doc.id,
-                    date: data.timestamp.toDate(),
+                    id: data.id,
+                    userId: data.userId,
+                    binId: data.binId,
                     total: data.total,
                     earnings: data.earnings,
                     status: data.status,
+                    timestamp: data.timestamp.toDate(),
                 };
             });
 
@@ -192,12 +196,30 @@ export default function ScanPage() {
         setScanResult(null); // Clear previous result
     };
 
-    const previewStyle = {
-        height: 240,
-        width: 320,
+    const saveBulkUpload = async () => {
+        setIsSubmitting(true);
+        const bottlesRef = collection(db, "bottles");
+        const newDocRef = doc(bottlesRef);
+
+        const newBottle = {
+            id: newDocRef.id,
+            userId: user?.uid ?? "",
+            binId: selectedBin ?? "",
+            total: totalBottles,
+            earnings: totalBottles * 0,
+            status: "pending",
+            timestamp: new Date(),
+        };
+
+        await addDoc(bottlesRef, newBottle);
+        setIsSubmitting(false);
+        setTotalBottles(0);
+        setSelectedBin(null);
+        setBottlesRecycled([...bottlesRecycled, newBottle]);
+        alert("Bottles submitted successfully");
     };
 
-    if (user) {
+    if (!user) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <p className="text-lg text-gray-400">Loading...</p>
@@ -246,59 +268,57 @@ export default function ScanPage() {
                         <p className="text-sm font-medium text-gray-500 mb-1 mt-4">
                             Upload a list of Bottles you have packaged
                         </p>
-                        <form className="space-y-6">
-                            <div className="space-y-4">
-                                <div>
-                                    <select
-                                        id="selectedBin"
-                                        value={selectedBin ?? "Select Bin"}
-                                        onChange={(e) => setSelectedBin(e.target.value)}
-                                        className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
-                                    >
-                                        <option value="">Select Bin</option>
-                                        {bins.map((bin) => (
-                                            <option value={bin.id} key={bin.id}>
-                                                {`${bin.binId} - ${bin.location.address}`}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label
-                                        htmlFor="totalBottles"
-                                        className="block text-sm font-medium text-gray-500"
-                                    >
-                                        Number of Bottles in this Batch
-                                    </label>
-                                    <input
-                                        type="number"
-                                        id="amount"
-                                        value={totalBottles}
-                                        onChange={(e) => setTotalBottles(e.target.valueAsNumber)}
-                                        className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
-                                        required
-                                        min="0"
-                                        step="1"
-                                        placeholder="Total bottles"
-                                    />
-                                </div>
-                                <div className="mt-4">
-                                    <button
-                                        //onClick={}
-                                        disabled={
-                                            isSubmitting ||
-                                            totalBottles <= 0 ||
-                                            !selectedBin ||
-                                            !totalBottles
-                                        }
-                                        className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isSubmitting ? "Submitting Bottles..." : "Submit Bottles"}
-                                    </button>
-                                </div>
+                        <div className="space-y-4">
+                            <div>
+                                <select
+                                    id="selectedBin"
+                                    value={selectedBin ?? "Select Bin"}
+                                    onChange={(e) => setSelectedBin(e.target.value)}
+                                    className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                                >
+                                    <option value="">Select Bin</option>
+                                    {bins.map((bin) => (
+                                        <option value={bin.id} key={bin.id}>
+                                            {`${bin.binId} - ${bin.location.address}`}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
-                        </form>
+
+                            <div>
+                                <label
+                                    htmlFor="totalBottles"
+                                    className="block text-sm font-medium text-gray-500"
+                                >
+                                    Number of Bottles in this Batch
+                                </label>
+                                <input
+                                    type="number"
+                                    id="amount"
+                                    value={totalBottles}
+                                    onChange={(e) => setTotalBottles(e.target.valueAsNumber)}
+                                    className="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                                    required
+                                    min="0"
+                                    step="1"
+                                    placeholder="Total bottles"
+                                />
+                            </div>
+                            <div className="mt-4">
+                                <button
+                                    onClick={saveBulkUpload}
+                                    disabled={
+                                        isSubmitting ||
+                                        totalBottles <= 0 ||
+                                        !selectedBin ||
+                                        !totalBottles
+                                    }
+                                    className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? "Submitting Bottles..." : "Submit Bottles"}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -311,15 +331,15 @@ export default function ScanPage() {
                     {/* start scan button */}
                     <div className="flex justify-center items-center">
                         <button
-                            // onClick={() => {
-                            //     if (isScanning) {
-                            //         startScan(false); // stop scan
-                            //         setIsScanning(false);
-                            //     } else {
-                            //         startScan(true); //
-                            //         setIsScanning(true);
-                            //     }
-                            // }}
+                            onClick={() => {
+                                if (isScanning) {
+                                    startScan(false); // stop scan
+                                    setIsScanning(false);
+                                } else {
+                                    startScan(true); //
+                                    setIsScanning(true);
+                                }
+                            }}
                             className={`${
                                 !isScanning
                                     ? "bg-emerald-700 text-white hover:bg-emerald-600"
@@ -357,19 +377,19 @@ export default function ScanPage() {
                                 </th>
                                 <th
                                     scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
                                 >
                                     Bottles
                                 </th>
                                 <th
                                     scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
                                 >
                                     Earnings₵
                                 </th>
                                 <th
                                     scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
                                 >
                                     Status
                                 </th>
@@ -380,15 +400,17 @@ export default function ScanPage() {
                                 bottlesRecycled.map((bottles) => (
                                     <tr key={bottles.id}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {bottles.date.toLocaleDateString()}
+                                            {bottles.timestamp.toLocaleDateString()}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <span>{bottles.total < 0 ? "-" : "+"}₵</span>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                            <span>{bottles.total > 0 ? bottles.total : "a"}</span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {Math.abs(bottles.earnings).toFixed(2)}
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                            {bottles.earnings < 0
+                                                ? Math.abs(bottles.earnings).toFixed(2)
+                                                : "-"}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                             <span
                                                 className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                                     bottles.status === "credited"
