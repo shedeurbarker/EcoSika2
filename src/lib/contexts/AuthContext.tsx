@@ -7,11 +7,11 @@ import {
     signOut as firebaseSignOut,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    sendPasswordResetEmail,
     User,
     onAuthStateChanged,
 } from "firebase/auth";
-import { auth } from "../firebase/firebase";
+import { auth, db } from "../firebase/firebase";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export interface AuthContextType {
     user: User | null;
@@ -19,9 +19,7 @@ export interface AuthContextType {
     signInWithGoogle: () => Promise<void>;
     signInWithEmail: (email: string, password: string) => Promise<void>;
     signUpWithEmail: (email: string, password: string) => Promise<void>;
-    resetPassword: (email: string) => Promise<void>;
     signOut: () => Promise<void>;
-    signIn: (user: User) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -30,9 +28,7 @@ export const AuthContext = createContext<AuthContextType>({
     signInWithGoogle: async () => {},
     signInWithEmail: async () => {},
     signUpWithEmail: async () => {},
-    resetPassword: async () => {},
     signOut: async () => {},
-    signIn: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -51,7 +47,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const signInWithGoogle = async () => {
         const provider = new GoogleAuthProvider();
         try {
-            await signInWithPopup(auth, provider);
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+
+            // Check if user already exists in recyclers collection
+            const recyclerRef = doc(db, "recyclers", user.uid);
+            const recyclerDoc = await getDoc(recyclerRef);
+
+            if (!recyclerDoc.exists()) {
+                // Create new recycler document
+                await setDoc(recyclerRef, {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL,
+                    phoneNumber: user.phoneNumber,
+                    walletBalance: 0,
+                    pendingBalance: 0,
+                    mobileProvider: null,
+                    mobileNumber: null,
+                    createdAt: serverTimestamp(),
+                    lastLoginAt: serverTimestamp(),
+                    totalBottlesRecycled: 0,
+                    monthlyBottlesRecycled: 0,
+                    totalEarnings: 0,
+                    monthlyEarnings: 0,
+                    totalCO2Saved: 0,
+                    treesEquivalent: 0,
+                    communityImpact: 0,
+                    currentStreak: 0,
+                    longestStreak: 0,
+                    achievements: [],
+                    notifications: {
+                        priceAlerts: true,
+                        payoutConfirmations: true,
+                        binPickupReminders: true,
+                    },
+                });
+            }
         } catch (error) {
             console.error("Error signing in with Google:", error);
             throw error;
@@ -69,18 +102,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signUpWithEmail = async (email: string, password: string) => {
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
+            const result = await createUserWithEmailAndPassword(auth, email, password);
+            const user = result.user;
+
+            // Create new recycler document
+            const recyclerRef = doc(db, "recyclers", user.uid);
+            await setDoc(recyclerRef, {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+                phoneNumber: user.phoneNumber,
+                walletBalance: 0,
+                pendingBalance: 0,
+                mobileProvider: null,
+                mobileNumber: null,
+                createdAt: serverTimestamp(),
+                lastLoginAt: serverTimestamp(),
+                totalBottlesRecycled: 0,
+                monthlyBottlesRecycled: 0,
+                totalEarnings: 0,
+                monthlyEarnings: 0,
+                totalCO2Saved: 0,
+                treesEquivalent: 0,
+                communityImpact: 0,
+                currentStreak: 0,
+                longestStreak: 0,
+                achievements: [],
+                notifications: {
+                    priceAlerts: true,
+                    payoutConfirmations: true,
+                    binPickupReminders: true,
+                },
+            });
         } catch (error) {
             console.error("Error signing up with email:", error);
-            throw error;
-        }
-    };
-
-    const resetPassword = async (email: string) => {
-        try {
-            await sendPasswordResetEmail(auth, email);
-        } catch (error) {
-            console.error("Error resetting password:", error);
             throw error;
         }
     };
@@ -94,19 +150,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const signIn = async (user: User) => {
-        setUser(user);
-    };
-
     const value = {
         user,
         loading,
         signInWithGoogle,
         signInWithEmail,
         signUpWithEmail,
-        resetPassword,
         signOut,
-        signIn,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

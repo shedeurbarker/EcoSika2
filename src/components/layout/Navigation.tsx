@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { withAuth } from "@/components/auth/withAuth";
+import { useLoading } from "@/lib/contexts/LoadingContext";
 
-export default function Navigation() {
-    const { user } = useAuth();
+function NavigationComponent() {
     const pathname = usePathname();
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
-
-    // Don't render navigation if user is not logged in
-    if (!user) return null;
+    const { startLoading, stopLoading } = useLoading();
 
     const navigation = [
         { name: "Home", href: "/" },
@@ -20,6 +20,15 @@ export default function Navigation() {
         { name: "Earnings", href: "/earnings" },
         { name: "Settings", href: "/settings" },
     ];
+
+    const handleNavigation = (href: string) => {
+        if (pathname !== href) {
+            startLoading();
+            router.push(href);
+            // Stop loading after a short delay to ensure smooth transition
+            setTimeout(stopLoading, 1000);
+        }
+    };
 
     return (
         <nav className="bg-white shadow">
@@ -68,17 +77,17 @@ export default function Navigation() {
                         </div>
                         <div className="hidden md:ml-6 md:flex md:space-x-8">
                             {navigation.map((item) => (
-                                <Link
+                                <button
                                     key={item.name}
-                                    href={item.href}
-                                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                                    onClick={() => handleNavigation(item.href)}
+                                    className={`${
                                         pathname === item.href
-                                            ? "border-green-500 text-gray-900"
+                                            ? "border-indigo-500 text-gray-900"
                                             : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                                    }`}
+                                    } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
                                 >
                                     {item.name}
-                                </Link>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -107,3 +116,5 @@ export default function Navigation() {
         </nav>
     );
 }
+
+export default withAuth(NavigationComponent);

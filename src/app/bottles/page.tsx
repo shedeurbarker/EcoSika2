@@ -81,7 +81,6 @@ export default function ScanPage() {
                     ...doc.data(),
                 })) as Bin[];
                 setBins(binsData);
-                console.log(binsData);
             };
 
             fetchBins();
@@ -103,7 +102,6 @@ export default function ScanPage() {
 
             const bottlesList = bottleSnapshot.docs.map((doc) => {
                 const data = doc.data();
-                console.log(data);
                 return {
                     id: data.id,
                     userId: data.userId,
