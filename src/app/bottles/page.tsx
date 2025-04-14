@@ -165,10 +165,12 @@ export default function ScanPage() {
     const onScanSuccess = (decodedText: string) => {
         const onScanSuccess = (decodedText: string) => {
             setScannedBottles([...scannedBottles, { id: decodedText, timestamp: new Date() }]);
+            alert(decodedText);
         };
     };
 
     const onScanError = (error: any) => {
+        alert("Scan error:" + error);
         //console.error("Scan error:", error);
     };
 
@@ -218,8 +220,8 @@ export default function ScanPage() {
                 {/* Bulk Upload */}
                 {activeTab === "bulk" && (
                     <div>
-                        <p className="text-lg font-medium text-gray-900 mb-4">
-                            Upload a list of Bottles you have packaged.
+                        <p className="text-sm font-medium text-gray-500 mb-1 mt-4">
+                            Upload a list of Bottles you have packaged
                         </p>
                         <form className="space-y-6">
                             <div className="space-y-4">
@@ -242,7 +244,7 @@ export default function ScanPage() {
                                 <div>
                                     <label
                                         htmlFor="totalBottles"
-                                        className="block text-sm font-medium text-gray-700"
+                                        className="block text-sm font-medium text-gray-500"
                                     >
                                         Number of Bottles in this Batch
                                     </label>
@@ -284,7 +286,7 @@ export default function ScanPage() {
                     </div>
 
                     {/* start scan button */}
-                    <div className="flex justify-center wrow-span-1">
+                    <div className="flex justify-center items-center">
                         <button
                             onClick={() => {
                                 if (isScanning) {
@@ -297,18 +299,20 @@ export default function ScanPage() {
                             }}
                             className={`${
                                 !isScanning
-                                    ? "bg-orange-600 text-white hover:bg-orange-700"
+                                    ? "bg-emerald-700 text-white hover:bg-emerald-600"
                                     : "bg-gray-200 text-gray-500 hover:bg-gray-300"
-                            } px-4 py-2 rounded-md mr-6 focus:outline-none h-24 w-24 mt-5`}
+                            } px-4 py-2 rounded-md mr-6 focus:outline-none h-16 w-16`}
                         >
                             {isScanning ? "Stop Scan" : "Start Scan"}
                         </button>
-                        <div className="bg-white rounded-lg shadow-md p-0 mb-0 text-black w-36 h-36">
-                            <div className="text-center text-gray-400">Bottles Scanned</div>
-                            <div className="text-black-800 text-8xl font-bold text-center">0</div>
-                            {scannedBottles.map((bottle) => (
+                        <div className="bg-white rounded-lg shadow-lg p-0 mb-0 text-black">
+                            <div className="text-center text-gray-400 p-1">Scanned</div>
+                            <div className="text-gray-700 text-4xl font-bold text-center">
+                                {scannedBottles.length}
+                            </div>
+                            {/* {scannedBottles.map((bottle) => (
                                 <div key={bottle.id}>{bottle.id}</div>
-                            ))}
+                            ))} */}
                         </div>
                     </div>
                 </div>

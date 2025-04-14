@@ -36,12 +36,7 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       
       // Allow create if user is authenticated and creating their own document
-      allow create: if isOwner(userId) && 
-        request.resource.data.uid == userId &&
-        request.resource.data.email == request.auth.token.email;
-      
-      // Allow update if user is authenticated and updating their own document
-      allow update: if isOwner(userId) && 
+      allow create, update: if isOwner(userId) && 
         request.resource.data.uid == userId &&
         request.resource.data.email == request.auth.token.email;
       
@@ -51,11 +46,14 @@ service cloud.firestore {
     
     // Rules for bins collection
     match /bins/{binId} {
-      // Allow read if user is authenticated
-      allow read: if isAuthenticated();
-      
-      // Allow write operations if user is authenticated
-      allow write: if isAuthenticated();
+      // Allow read and write if user is authenticated
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Rules for bottles collection
+    match /bottles/{bottleId} {
+      // Allow read and write if user is authenticated
+      allow read, write: if isAuthenticated();
     }
     
     // Rules for withdrawals collection

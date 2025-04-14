@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useRecycler } from "@/lib/hooks/useRecycler";
 import SignInWithGoogle from "@/components/SignInWithGoogle";
@@ -118,27 +118,29 @@ export default function Home() {
     if (!user) {
         return (
             <main className="min-h-screen p-8">
-                <div className="max-w-4xl mx-auto space-y-8">
-                    <h1 className="text-4xl font-bold text-center text-gray-900">
-                        Welcome to EcoSika
-                    </h1>
+                <Suspense fallback={<div>Loading...</div>}>
+                    <div className="max-w-4xl mx-auto space-y-8">
+                        <h1 className="text-4xl font-bold text-center text-gray-900">
+                            Welcome to EcoSika
+                        </h1>
 
-                    <div className="space-y-6">
-                        <p className="text-center text-gray-600">Please sign in to continue</p>
-                        <div className="max-w-md mx-auto space-y-4">
-                            <SignInWithGoogle />
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-300" />
+                        <div className="space-y-6">
+                            <p className="text-center text-gray-600">Please sign in to continue</p>
+                            <div className="max-w-md mx-auto space-y-4">
+                                <SignInWithGoogle />
+                                <div className="relative">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <div className="w-full border-t border-gray-300" />
+                                    </div>
+                                    <div className="relative flex justify-center text-sm">
+                                        <span className="px-2 bg-white text-gray-500">Or</span>
+                                    </div>
                                 </div>
-                                <div className="relative flex justify-center text-sm">
-                                    <span className="px-2 bg-white text-gray-500">Or</span>
-                                </div>
+                                <EmailSignIn />
                             </div>
-                            <EmailSignIn />
                         </div>
                     </div>
-                </div>
+                </Suspense>
             </main>
         );
     }

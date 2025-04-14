@@ -111,12 +111,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-// This hook is now defined in src/lib/hooks/useAuth.ts
-// export const useAuth = () => {
-//     const context = useContext(AuthContext);
-//     if (context === undefined) {
-//         throw new Error("useAuth must be used within an AuthProvider");
-//     }
-//     return context;
-// };
